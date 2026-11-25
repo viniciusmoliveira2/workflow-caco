@@ -12,7 +12,7 @@ Fonte do método: `~/.claude/metodo/` (README, modelo de projeto). Idioma: o do 
 ## 0. Pré-voo (toda invocação)
 
 1. **Modelo.** Opus, esforço médio (alto ao decidir ✋ em modo delegado). Abaixo disso, avise na 1ª linha e só siga se o dono mandar.
-2. **Leia só** `.workflow/estado.md` e `.workflow/config.md`. Sem config → `iniciar` ou `migrar` (§10). Nada mais no pré-voo: nem CLAUDE.md inteiro, nem specs, nem histórico. Item do estado com `vence` já passado: avise na 1ª linha, com a ação prevista.
+2. **Leia só** `.workflow/estado.md`, `.workflow/config.md` e, se existir, `.workflow/marco.md`. Sem config → `iniciar` ou `migrar` (§10). Nada mais no pré-voo: nem CLAUDE.md inteiro, nem specs, nem histórico. Item do estado com `vence` já passado: avise na 1ª linha, com a ação prevista.
 3. Com frente no estado: `list_sessions {linked: true}`; havendo frente rodando, `request_keep_awake` até `session_idle`.
 
 ## 1. Papéis, modelos e esforço
@@ -21,6 +21,8 @@ Fonte do método: `~/.claude/metodo/` (README, modelo de projeto). Idioma: o do 
 |---|---|---|---|
 | Orquestrador | Opus | médio (alto ao decidir ✋ em modo delegado) | esta sessão |
 | PO (discovery + validação) | Opus | alto | frente (skill `po-discovery`) |
+| PO em gestão: plano do marco | Opus | médio | frente (skill `po-gestao`) |
+| PO em gestão: revisão, impacto de escopo, fechamento | Sonnet | médio | subagente (skill `po-gestao`) |
 | UI/UX (direções, protótipo) | Opus | médio, depois alto | frente (agente `ui-ux`) |
 | SWE planejando · banco · Segurança | Opus | alto | frente (agentes `swe`, `security`) |
 | Conferente de plano · revisão estrutural | Opus | médio | subagente da frente |
@@ -42,7 +44,7 @@ O orquestrador escolhe a trilha ao abrir o trabalho e registra o motivo (uma lin
 | **M** média | funcionalidade dentro do escopo aprovado (`docs/produto/escopo.md`) | spec de 1 página → [tela nova: protótipo baixa fidelidade → ✋ 2] → SWE → portões → segurança se houver gatilho → ✋ merge |
 | **G** grande | escopo novo, tema regulatório, mudança de princípio | PO + portão de validação → ✋ 1 → 2 direções → ✋ 2a → [interação em jogo: protótipo navegável → ✋ 2b] → SWE → segurança → ✋ merge |
 
-**Portão de validação (G).** Antes do ✋ 1 o PO responde por escrito: que evidência real existe de que isso é preciso (uso, pedido do usuário, dado)? Sem evidência, só entra como **aposta**: aprovada pelo dono, com orçamento máximo de linhas, e **nunca antes de o piloto rodar** quando o config declara piloto.
+**Portão de validação (G).** Antes do ✋ 1 o PO responde por escrito: que evidência real existe de que isso é preciso (uso, pedido do usuário, dado)? Sem evidência, só entra como **aposta**: aprovada pelo dono, com orçamento máximo de linhas, e **nunca antes de o piloto rodar** quando o config declara piloto. Com `marco.md`, o pedido do ✋ 1 leva também o impacto no marco (3 linhas da `po-gestao`: capacidade, caminho crítico, data).
 
 **Os ✋ do dono** (ele fala sempre com o orquestrador): ✋ 1 rumo, escopo e emenda de princípio (G) · ✋ 2 visual (M com tela nova; 2a/2b na G) · ✋ 3 merge (todas; P em lote, um ✋ para várias entregas). Cada pedido ao dono diz: o que decidir, onde olhar (URL completa ou caminho), como responder, o que acontece depois. Suposições `A-XX-YY` de impacto alto vão junto de um ✋, nunca num ponto extra. Fora dos ✋, o orquestrador decide.
 
@@ -87,6 +89,7 @@ Meta: uma frente começa com **< 40 mil tokens** além da base do sistema; o orq
 |---|---|---|
 | Orquestrador | estado, config | `entrega.md` da frente que terminou |
 | PO | visão, escopo, spec do domínio | ADRs do domínio, pesquisa externa |
+| PO em gestão | estado, config, marco, escopo | cabeçalho das `entrega.md` do marco, `git log --oneline`, ADRs de risco |
 | UI/UX | DESIGN.md, spec do domínio | telas afetadas |
 | SWE | spec e plano da frente, spec do domínio | regras da área (`.claude/rules/` carregam sozinhas), ADRs citados |
 | Segurança | spec da frente, diff | regras de banco e IA, ADRs de risco |
@@ -156,13 +159,14 @@ Achado depois do merge: nova frente apontando o commit de origem. Artefato fora 
 ## 9. Estado e registro
 
 - **O agora:** `.workflow/estado.md`, ≤ 40 linhas, **sobrescrito**, só o orquestrador edita; commit junto do merge ou da passagem, não a cada evento.
+- **O marco:** `.workflow/marco.md`, ≤ 40 linhas, sobrescrito, escrito pelo PO em gestão (`po-gestao`): critério de saída, caminho crítico, fila do dono, riscos vivos, números. O orquestrador lê e não abre frente fora do caminho crítico sem dizer por quê. No fim do marco, fechamento pela `po-gestao` junto da `auditoria-enxuta`.
 - **Domínio:** `docs/specs/<dom>.md` · **porquê:** `docs/decisoes/` · **histórico:** git + ADRs. Nada se repete em dois lugares.
 
 **Notion (opcional, se o config apontar um painel):** só os itens que esperam o dono, criados ao pedir um ✋ e fechados quando ele responde. Sem batimento nem loop: as frentes acordam o orquestrador ao terminar, e o dono fala no chat (ou avisa no chat que respondeu no painel). Nada de dado pessoal ou sensível no painel.
 
 ## 10. Subcomandos
 
-**`iniciar`** (pasta sem `.workflow/config.md`, projeto novo): copie `~/.claude/metodo/modelo-projeto/` para a raiz (sem sobrescrever arquivo existente); `.claude/settings.modelo.json` fica como exemplo, sem ativar; perfil de desenvolvimento: copie `.claude/settings.local.modelo.json` para `.claude/settings.local.json` (desliga skills da conta e conectores do claude.ai só neste projeto; confirme com o dono se o projeto usa algum conector). Preencha o config inferindo o possível; pergunte ao dono só o resto (portas, perfil, piloto, não-alvos). Depois: `brainstorming` opcional → PO (G) preenche visão, escopo e inegociáveis → SWE `skeleton` fecha Comandos, Mapa e config → QA roda `gerar-verificacao-do-app`, se houver app. **Base de contexto:** numa sessão nova do projeto, `get_usage` → some as categorias fixas (prompt de sistema, ferramentas, MCP, skills, memória) e anote em `base_de_contexto` do config; acima do teto, corte plugin, skill ou conector antes da primeira frente e confira na medição se o perfil de desenvolvimento de fato tirou skills da conta e conectores. **Auto mode:** o texto de ambiente do auto mode em `~/.claude/settings.json` é global; se ele descreve outro projeto, avise o dono (o orquestrador não edita configuração de auto mode). **Opcional, com prazo externo e aval do dono:** uma tarefa agendada em modelo pequeno que lê só o `estado.md` e avisa o que venceu; não decide nem abre frente.
+**`iniciar`** (pasta sem `.workflow/config.md`, projeto novo): copie `~/.claude/metodo/modelo-projeto/` para a raiz (sem sobrescrever arquivo existente); `.claude/settings.modelo.json` fica como exemplo, sem ativar; perfil de desenvolvimento: copie `.claude/settings.local.modelo.json` para `.claude/settings.local.json` (desliga skills da conta e conectores do claude.ai só neste projeto; confirme com o dono se o projeto usa algum conector). Preencha o config inferindo o possível; pergunte ao dono só o resto (portas, perfil, piloto, não-alvos). Depois: `brainstorming` opcional → PO (G) preenche visão, escopo e inegociáveis e, em gestão (`po-gestao`), o `marco.md` do primeiro marco → SWE `skeleton` fecha Comandos, Mapa e config → QA roda `gerar-verificacao-do-app`, se houver app. **Base de contexto:** numa sessão nova do projeto, `get_usage` → some as categorias fixas (prompt de sistema, ferramentas, MCP, skills, memória) e anote em `base_de_contexto` do config; acima do teto, corte plugin, skill ou conector antes da primeira frente e confira na medição se o perfil de desenvolvimento de fato tirou skills da conta e conectores. **Auto mode:** o texto de ambiente do auto mode em `~/.claude/settings.json` é global; se ele descreve outro projeto, avise o dono (o orquestrador não edita configuração de auto mode). **Opcional, com prazo externo e aval do dono:** uma tarefa agendada em modelo pequeno que lê só o `estado.md` e avisa o que venceu; não decide nem abre frente.
 
 **`migrar`** (projeto existente para o v3; só documentos, nenhum código):
 1. **Meça antes**: bytes ÷ 4 do que o orquestrador e uma frente SWE liam ao começar (CLAUDE.md + o que os briefs mandavam ler + estado), e a base fixa por `get_usage` (anote em `base_de_contexto` do config).
@@ -170,7 +174,7 @@ Achado depois do merge: nova frente apontando o commit de origem. Artefato fora 
 3. **Meça depois** com a mesma régua e ponha os dois números na entrega.
 4. ✋ 3 do dono (inegociáveis mudam de lugar, não de texto). Arquivos de estado antigos saem da árvore; o histórico fica no git.
 
-**`retomar`**: pré-voo → para cada frente do estado, localize a sessão; se não existe, confira branch, commits e `entrega.md` e feche ou reabra → resumo ao dono em 5 linhas.
+**`retomar`**: pré-voo → para cada frente do estado, localize a sessão; se não existe, confira branch, commits e `entrega.md` e feche ou reabra → com `marco.md`, revisão pela `po-gestao` (subagente Sonnet médio, atualiza o arquivo) → resumo ao dono em 5 linhas, alertas primeiro.
 
 **`ideia "<texto>"`**: classifique a trilha e registre no estado; G vai ao PO; com piloto declarado e não rodando, escopo novo só como aposta (§2).
 

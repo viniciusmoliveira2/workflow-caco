@@ -18,6 +18,7 @@
 !/skills/
 /skills/*
 !/skills/po-discovery/
+!/skills/po-gestao/
 !/skills/precisa-existir/
 !/skills/testar-comportamento/
 !/skills/prova-executada/

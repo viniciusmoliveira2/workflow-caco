@@ -8,7 +8,8 @@ Este repositório é a pasta `~/.claude` com uma lista fechada no `.gitignore`: 
 
 - `commands/workflow.md` — o orquestrador `/workflow` (`iniciar`, `migrar`, `retomar`, `ideia`, `status`).
 - `agents/{swe,security,ui-ux}.md` — os papéis.
-- `skills/po-discovery/` e as 8 skills dos portões.
+- `skills/po-discovery/` e `skills/po-gestao/` — o PO: discovery de uma ideia e gestão do marco.
+- as 8 skills dos portões, também em `skills/`.
 - `metodo/modelo-projeto/` — o esqueleto que o `/workflow iniciar` copia para um projeto novo.
 - `metodo/fontes/` — textos-fonte das skills externas, cada um com a sua licença.
 - `CLAUDE.md` — regras curtas que valem em todo projeto.

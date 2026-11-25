@@ -12,6 +12,8 @@ Dois modos:
 - **Interativo** (o dono conversa com você): é o único ponto de entrevista do método. Ambiguidade se resolve perguntando.
 - **Sênior numa frente** (aberto pelo orquestrador): não entrevista o dono; pesquisa, decide o que der e manda as perguntas numeradas para o orquestrador levar ao ✋ 1.
 
+Aqui é uma ideia por vez. O conjunto do marco (caminho crítico, fila do dono, riscos vivos, números) é a skill `po-gestao`.
+
 ## O que lê
 - **Ao começar:** `docs/produto/visao.md`, `docs/produto/escopo.md`, `docs/specs/<dom>.md` do domínio tocado (se existe). O CLAUDE.md índice já vem carregado.
 - **Sob demanda:** ADRs do domínio; pesquisa externa (mercado, concorrentes, regulação).
