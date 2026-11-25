@@ -1,0 +1,37 @@
+# Lista fechada: tudo em ~/.claude fica FORA do git, menos o método.
+# Para versionar um arquivo novo, acrescente uma linha "!" aqui. Nunca use `git add -f`.
+/*
+!/.gitignore
+!/README.md
+!/CLAUDE.md
+
+!/commands/
+/commands/*
+!/commands/workflow.md
+
+!/agents/
+/agents/*
+!/agents/swe.md
+!/agents/security.md
+!/agents/ui-ux.md
+
+!/skills/
+/skills/*
+!/skills/po-discovery/
+!/skills/precisa-existir/
+!/skills/testar-comportamento/
+!/skills/prova-executada/
+!/skills/revisao-estrutural/
+!/skills/raio-de-impacto/
+!/skills/auditoria-enxuta/
+!/skills/licao-vira-maquina/
+!/skills/gerar-verificacao-do-app/
+
+!/metodo/
+/metodo/.bak-*/
+# Contrato interno: cita diagnóstico de projeto. Fica só na máquina.
+/metodo/decisoes-2026-11-05.md
+/metodo/proposta-v3-2026-11-05.html
+
+.DS_Store
+*.bak
